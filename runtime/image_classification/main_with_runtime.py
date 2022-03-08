@@ -238,24 +238,18 @@ def main():
                                      std=[0.229, 0.224, 0.225])
 
     if args.arch == 'inception_v3':
-        if args.synthetic_data:
-            train_dataset = SyntheticDataset((3, 299, 299), 10000)
-        else:
-            traindir = os.path.join(args.data_dir, 'train')
-            train_dataset = datasets.ImageFolder(
+        traindir = os.path.join(args.data_dir, 'train')
+        train_dataset = datasets.ImageFolder(
                 traindir,
                 transforms.Compose([
                     transforms.RandomResizedCrop(299),
                     transforms.ToTensor(),
                     normalize,
                 ])
-            )
+        )
     else:
-        if args.synthetic_data:
-            train_dataset = SyntheticDataset((3, 224, 224), 1000000)
-        else:
-            traindir = os.path.join(args.data_dir, 'train')
-            train_dataset = datasets.ImageFolder(
+        traindir = os.path.join(args.data_dir, 'train')
+        train_dataset = datasets.ImageFolder(
                 traindir,
                 transforms.Compose([
                     transforms.RandomResizedCrop(224),
@@ -264,16 +258,19 @@ def main():
                     normalize,
                 ]))
 
+       
     if args.synthetic_data:
-        val_dataset = SyntheticDataset((3, 224, 224), 10000)
-    else:
-        valdir = os.path.join(args.data_dir, 'val')
-        val_dataset = datasets.ImageFolder(valdir, transforms.Compose([
+        train_dataset = SyntheticDataset((3, 224, 224), len(train_dataset))
+    
+    valdir = os.path.join(args.data_dir, 'val')
+    val_dataset = datasets.ImageFolder(valdir, transforms.Compose([
             transforms.Resize(256),
             transforms.CenterCrop(224),
             transforms.ToTensor(),
             normalize,
         ]))
+    if args.synthetic_data:
+        val_dataset = SyntheticDataset((3, 224, 224), len(val_dataset))
 
     distributed_sampler = False
     train_sampler = None
